@@ -1,0 +1,14 @@
+---
+
+- name: Apply all patches and store result
+  community.general.syspatch:
+  register: syspatch
+
+- name: Update all packages on the system
+  community.general.openbsd_pkg:
+    name: '*'
+    state: latest
+
+- name: Reboot if patch requires it
+  ansible.builtin.reboot:
+  when: syspatch.reboot_needed

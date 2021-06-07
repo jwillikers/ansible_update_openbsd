@@ -1,0 +1,9 @@
+---
+- name: Converge
+  hosts: all
+  vars:
+    ci: true
+  tasks:
+    - name: Include ansible_update_openbsd
+      include_role:
+        name: "ansible_update_openbsd"
