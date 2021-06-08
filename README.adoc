@@ -11,7 +11,7 @@ ifdef::env-github[]
 endif::[]
 :OpenBSD: https://www.openbsd.org/[OpenBSD]
 
-An Ansible role to update OpenBSD
+An Ansible role to update OpenBSD.
 
 == Requirements
 
@@ -23,20 +23,33 @@ An Ansible role to update OpenBSD
 
 To use this role, you'll need to install Ansible, role dependencies, and the role itself.
 
+The remote OpenBSD target will need to have Python installed, i.e. `doas pkg_add python3`.
+
 . Install Ansible.
 
 OpenBSD:::
+
+.. On OpenBSD, there is an Ansible package available.
 +
 [source,sh]
 ----
 ➜ doas pkg_add ansible
 ----
 
-Fedora:::
+.. Install the required roles and collections.
 +
 [source,sh]
 ----
-➜ sudo dnf -y install ansible
+➜ ansible-galaxy install -r requirements.yml
+----
+
+Fedora:::
+
+. On Fedora, both Ansible and the required collection can be installed directly from the package manager.
++
+[source,sh]
+----
+➜ sudo dnf -y install ansible ansible-collection-community-general
 ----
 
 . Create a roles directory in the current folder to place all roles.
@@ -46,23 +59,39 @@ Fedora:::
 ➜ mkdir roles
 ----
 
-. Install the required roles and collections.
-+
-[source,sh]
-----
-➜ ansible-galaxy install -r requirements.yml
-----
-
 . Run the role.
-Here, the role is run against the local OpenBSD machine.
+For OpenBSD, this requires a bit of extra configuration to get working.
 
 Command-Line:::
+
+Localhost::::
 +
 [source,sh]
 ----
-➜ ansible localhost --connection=local --ask-become-pass -m include_role \
-  -a name=ansible_workstation -e user=$USER
+➜ ansible localhost --connection=local --ask-become-pass --become --become-method doas -m include_role \
+  -a name=ansible_update_openbsd
 ----
+
+Remote::::
+
+.. Create a hosts file to set the location of the Python interpreter.
++
+.hosts
+[source]
+----
+openbsd-host ansible_become=yes ansible_become_method=doas ansible_become_ask_pass=yes ansible_python_interpreter=/usr/local/bin/python3
+----
+
++
+[source,sh]
+----
+➜ ansible openbsd-host -m include_role -a name=ansible_update_openbsd
+----
++
+[NOTE]
+====
+For OpenBSD, you'll need to specify the location 
+====
 +
 Playbook:::
 +
@@ -75,7 +104,7 @@ Playbook:::
 ---
 - hosts: localhost
   roles:
-    - role: ansible_workstation
+    - role: ansible_update_openbsd
 ----
 
 .. Execute the playbook.
@@ -83,7 +112,7 @@ Playbook:::
 [source,sh]
 ----
 ➜ ansible-playbook my-playbook.yml -i "localhost," --connection=local \
-  --ask-become-pass
+  --ask-become-pass --become --become-method doas
 ----
 --
 
