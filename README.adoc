@@ -74,18 +74,19 @@ Localhost::::
 
 Remote::::
 
-.. Create a hosts file to set the location of the Python interpreter.
+.. Create a hosts file to set the location of the Python interpreter and other OpenBSD related details.
 +
 .hosts
 [source]
 ----
-openbsd-host ansible_become=yes ansible_become_method=doas ansible_become_ask_pass=yes ansible_python_interpreter=/usr/local/bin/python3
+openbsd-host ansible_become=yes ansible_become_method=doas ansible_python_interpreter=/usr/local/bin/python3
 ----
 
+..
 +
 [source,sh]
 ----
-➜ ansible openbsd-host -m include_role -a name=ansible_update_openbsd
+➜ ansible openbsd-host --become-ask-pass -m include_role -a name=ansible_update_openbsd
 ----
 +
 [NOTE]
